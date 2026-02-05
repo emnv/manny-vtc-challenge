@@ -9,11 +9,21 @@ use Symfony\Component\Routing\Annotation\Route;
 
 class IndexController extends AbstractController
 {
-    /**
-     * @Route("/index", name="app_index")
-     */
-    public function index(): Response
+    #[Route('/', name: 'app_home', methods: ['GET'])]
+    public function home(): Response
     {
-        return $this->render('index.html.twig');
+        return $this->render('base.html.twig');
+    }
+
+    #[Route('/register', name: 'app_register_page', methods: ['GET'])]
+    public function register(): Response
+    {
+        return $this->render('base.html.twig');
+    }
+
+    #[Route('/notes', name: 'app_notes', methods: ['GET'])]
+    public function notes(): Response
+    {
+        return $this->render('base.html.twig');
     }
 }

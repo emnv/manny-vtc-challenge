@@ -20,10 +20,8 @@ runConsoleSymfonyCommand () {
 if [ -z "$DEBUG" ]
 then
     echo "$(timestamp):[run] Debug disabled"
-    [ -f /usr/local/etc/php/conf.d/xdebug.ini ] && mv /usr/local/etc/php/conf.d/xdebug.ini /usr/local/etc/php/conf.d/xdebug.off
 else
     echo "$(timestamp):[run] Debug enabled"
-    [ -f /usr/local/etc/php/conf.d/xdebug.off ] && mv /usr/local/etc/php/conf.d/xdebug.off /usr/local/etc/php/conf.d/xdebug.ini
 fi
 
 runConsoleSymfonyCommand "cache:clear"

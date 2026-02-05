@@ -43,3 +43,104 @@ To run this project you will need:
     $ yarn watch
 
 After running this set of commands, without errors; you should be able to open `http://localhost:81/` and see `Hello World!!!` in the middle of the page.
+
+
+## Completion Progress
+- [x] User registration
+  - POST `/api/register` endpoint with email/password validation
+  - Minimum 8 character password requirement
+  - Duplicate email check
+  - Password hashing with Symfony's UserPasswordHasher
+  - React registration form with styled-components
+  - Auto-redirect to login after successful registration
+- [x] Account confirmation via email link (persisted to var/emails)
+  - Generates secure 32-byte hex token on registration
+  - Saves HTML formatted emails to `var/emails/` directory
+  - GET `/confirm/{token}` endpoint validates and activates accounts
+  - Beautiful HTML email template with gradient header
+  - Success/error confirmation page with proper styling
+- [x] User login
+  - POST `/api/login` endpoint with credential validation
+  - Email confirmation check before allowing login
+  - Resend confirmation email feature (`POST /api/resend-confirmation`)
+  - Session-based authentication with secure session management
+  - React login form with styled alert components
+  - Clean, minimalist UI with proper error handling
+  - Redirects to `/notes` dashboard on successful login
+- [x] Create notes
+  - POST `/api/notes` endpoint with validation
+  - Note entity with user relationship (CASCADE delete)
+  - Full CRUD operations (Create, Read, Update, Delete)
+  - Session-based authentication protecting all endpoints
+  - React modal form for creating/editing notes
+- [x] Note fields: title, content, category, status (new, todo, done)
+  - Title (required, VARCHAR 255)
+  - Content (LONGTEXT for extended text)
+  - Category (VARCHAR 100, user-defined)
+  - Status (new/todo/done with validation)
+  - CreatedAt and UpdatedAt timestamps (auto-managed)
+- [x] Notes list with search by title/content
+  - GET `/api/notes?search=query` endpoint
+  - Real-time search input with debouncing
+  - Searches across both title and content fields
+  - Grid layout with responsive cards
+- [x] Notes list filter by status
+  - GET `/api/notes?status=new|todo|done` endpoint
+  - Dropdown select for status filtering
+  - Visual badges showing status (color-coded)
+  - Combines with search and category filters
+- [x] Notes list filter by category
+  - GET `/api/notes?category=value` endpoint
+  - Dropdown populated with user's unique categories
+  - Dynamic category list from user's existing notes
+  - Combines with search and status filters
+
+## Implementation Guide
+
+### Authentication Flow
+1. **Registration** (`/register`)
+   - User enters email/password → redirects to login after 1.5s
+   - Email saved to `var/emails/{timestamp}_{email}.html` with confirmation link
+
+2. **Email Confirmation**
+   - User clicks link from email file → GET `/confirm/{token}`
+   - Account activated → redirects to login page
+
+3. **Login** (`/`)
+   - User enters credentials
+   - If unconfirmed: shows info alert with "Resend Confirmation Email" button
+   - If confirmed: TODO - redirect to notes dashboard
+
+### API Endpoints
+**Authentication:**
+- `POST /api/register` - Create new user account
+- `POST /api/login` - Authenticate user and create session
+- `POST /api/logout` - Destroy session
+- `POST /api/resend-confirmation` - Resend confirmation email
+- `GET /confirm/{token}` - Confirm email address
+
+**Notes Management:**
+- `GET /api/notes` - List notes with optional filters (search, status, category)
+- `POST /api/notes` - Create new note
+- `PUT /api/notes/{id}` - Update existing note
+- `DELETE /api/notes/{id}` - Delete note
+
+### Database Schema
+**users table:**
+- `id` (int, primary key)
+- `email` (varchar 180, unique)
+- `password` (varchar 255, hashed)
+- `roles` (json, default: ["ROLE_USER"])
+- `is_confirmed` (tinyint, default: 0)
+- `confirmation_token` (varchar 64, nullable)
+
+**notes table:**
+- `id` (int, primary key)
+- `user_id` (int, foreign key → users.id, CASCADE delete)
+- `title` (varchar 255, required)
+- `content` (longtext)
+- `category` (varchar 100)
+- `status` (varchar 20, enum: new/todo/done)
+- `created_at` (datetime immutable)
+- `updated_at` (datetime immutable)
+- Indexes: user_id, status, category

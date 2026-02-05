@@ -1,15 +1,21 @@
 FROM php:8.4-fpm-alpine
 
 RUN apk --no-cache add \
-        nginx supervisor curl bash vim \
-        icu-dev zlib-dev libzip-dev \
-        libpng-dev libjpeg-turbo-dev freetype-dev \
-        imagemagick-dev
+    nginx supervisor curl bash vim \
+    icu-dev zlib-dev libzip-dev \
+    libpng-dev libjpeg-turbo-dev freetype-dev \
+    imagemagick imagemagick-dev
 
-RUN docker-php-ext-configure gd --with-freetype --with-jpeg \
+RUN apk --no-cache add --virtual .build-deps $PHPIZE_DEPS \
+    linux-headers \
+    icu-dev zlib-dev libzip-dev \
+    libpng-dev libjpeg-turbo-dev freetype-dev \
+    imagemagick-dev \
+    && docker-php-ext-configure gd --with-freetype --with-jpeg \
     && docker-php-ext-install -j$(nproc) pdo pdo_mysql mysqli intl gd zip opcache \
     && pecl install xdebug imagick \
-    && docker-php-ext-enable xdebug imagick
+    && docker-php-ext-enable xdebug imagick \
+    && apk del .build-deps
 
 # Configure nginx
 COPY config/xdebug.ini /usr/local/etc/php/conf.d/xdebug.ini
